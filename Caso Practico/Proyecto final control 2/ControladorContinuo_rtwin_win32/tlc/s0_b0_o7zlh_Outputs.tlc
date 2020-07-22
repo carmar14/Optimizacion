@@ -1,0 +1,76 @@
+%implements s0_b0_o7zlh_Outputs "C"
+
+%function Outputs(block, system) Output
+%assign tlcOutputsFcnOfS0B0 = OpaqueTLCBlockFcn("Outputs", 0, 0, 0, 2)
+%assign tlcOutputsFcnOfS0B1 = OpaqueTLCBlockFcn("Outputs", 0, 1, 0, 2)
+%assign tlcOutputsFcnOfS0B2 = OpaqueTLCBlockFcn("Outputs", 0, 2, 0, 2)
+%assign tlcOutputsFcnOfS0B3 = OpaqueTLCBlockFcn("Outputs", 0, 3, 0, 2)
+%<SLibCG_TrackContStates(0)>\
+%<SLibCG_TrackParam(0)>\
+%<SLibCG_TrackBlockIO(0)>\
+%<SLibGenerateExtModeOutput(system)>
+/* Integrator: '<Root>/Integrator3' */
+rtb_Integrator3_idx = ControladorContinuo_X.Integrator3_CSTATE[0];
+rtb_Integrator3_idx_0 = ControladorContinuo_X.Integrator3_CSTATE[1];
+rtb_Integrator3_idx_1 = ControladorContinuo_X.Integrator3_CSTATE[2];
+/* Sum: '<Root>/Sum9' incorporates:
+ *  Gain: '<Root>/-ki'
+ *  Gain: '<Root>/-kp'
+ *  Integrator: '<Root>/Integrator3'
+ *  Integrator: '<Root>/Integrator4'
+ */
+ControladorContinuo_B.Sum9 = ((ControladorContinuo_P.kp_Gain[0] * ControladorContinuo_X.Integrator3_CSTATE[0] + ControladorContinuo_P.kp_Gain[1] * ControladorContinuo_X.Integrator3_CSTATE[1]) + ControladorContinuo_P.kp_Gain[2] * ControladorContinuo_X.Integrator3_CSTATE[2]) + ControladorContinuo_P.ki_Gain * ControladorContinuo_X.Integrator4_CSTATE;
+if (%<(SLibCGIRIsSampleHit(1, 0))>) {
+%<tlcOutputsFcnOfS0B0>\
+%<tlcOutputsFcnOfS0B1>\
+}
+/* Step: '<Root>/Step' */
+currentTime = %<(SLibCG_SE(LibGetTaskTime(0)))>;
+if (currentTime < ControladorContinuo_P.Step_Time) {
+    currentTime = ControladorContinuo_P.Step_Y0;
+} else {
+    currentTime = ControladorContinuo_P.Step_YFinal;
+}
+/* End of Step: '<Root>/Step' */
+
+/* Gain: '<S1>/Slider Gain' */
+ControladorContinuo_B.SliderGain = ControladorContinuo_P.SliderGain_Gain * currentTime;
+if (%<(SLibCGIRIsSampleHit(1, 0))>) {
+%<tlcOutputsFcnOfS0B2>\
+%<tlcOutputsFcnOfS0B3>\
+}
+/* Sum: '<Root>/Sum10' */
+ControladorContinuo_B.Sum10 = ControladorContinuo_B.SliderGain - ControladorContinuo_B.AnalogInput;
+if (%<(SLibCGIRIsSampleHit(1, 0))>) {
+    /* Gain: '<Root>/h' */
+    ControladorContinuo_B.h[0] = ControladorContinuo_P.h_Gain[0] * ControladorContinuo_B.AnalogInput;
+    ControladorContinuo_B.h[1] = ControladorContinuo_P.h_Gain[1] * ControladorContinuo_B.AnalogInput;
+    ControladorContinuo_B.h[2] = ControladorContinuo_P.h_Gain[2] * ControladorContinuo_B.AnalogInput;
+}
+/* Sum: '<Root>/Sum8' incorporates:
+ *  Gain: '<Root>/a-hc'
+ *  Gain: '<Root>/b2'
+ */
+for (i = 0; i < 3; i++) {
+    ControladorContinuo_B.Sum8[i] = ((ControladorContinuo_P.ahc_Gain[i + 3] * rtb_Integrator3_idx_0 + ControladorContinuo_P.ahc_Gain[i] * rtb_Integrator3_idx) + ControladorContinuo_P.ahc_Gain[i + 6] * rtb_Integrator3_idx_1) + (ControladorContinuo_P.b2_Gain[i] * ControladorContinuo_B.Sum9 + ControladorContinuo_B.h[i]);
+}
+/* End of Sum: '<Root>/Sum8' */
+%<SLibInsertSolverResetCode()>\
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Outputs(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 2, fcnProtoType)>
+
+%assign localVarDecl = ""
+%openfile localVarDecl
+real_T currentTime;
+int32_T i;
+real_T rtb_Integrator3_idx;
+real_T rtb_Integrator3_idx_0;
+real_T rtb_Integrator3_idx_1;
+
+%closefile localVarDecl
+%<LibSetSystemField(system, "CachedOutputLocalVars", localVarDecl)>
+%endfunction

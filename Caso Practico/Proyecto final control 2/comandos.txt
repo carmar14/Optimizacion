@@ -1,0 +1,412 @@
+>> modelo3varCan
+
+modelo3varCan =
+Continuous-time state-space model:
+    dx/dt = A x(t) + B u(t) + K e(t)
+     y(t) = C x(t) + D u(t) + e(t)
+ 
+A = 
+               x1          x2          x3
+   x1           0           1           0
+   x2           0           0           1
+   x3  -7.929e+05  -7.915e+04      -14.01
+ 
+B = 
+             u1
+   x1     7.711
+   x2    -167.9
+   x3  6.31e+04
+ 
+C = 
+       x1  x2  x3
+   y1   1   0   0
+ 
+D = 
+       u1
+   y1   0
+ 
+K = 
+               y1
+   x1       61.25
+   x2  -2.128e+04
+   x3  -3.374e+06
+ 
+Name: modelo3varCan
+Parameterization:
+   CANONICAL form with indices: 3.
+   Feedthrough: none
+   Disturbance component: estimate
+   Number of free coefficients: 9
+   Use "idssdata", "getpvec", "getcov" for parameters and their uncertainties.
+
+Status:                                            
+Estimated using N4SID on time domain data "mydata".
+Fit to estimation data: 94.85% (prediction focus)  
+FPE: 0.001289, MSE: 0.00106                        
+>> a=[0,1,0;0,0,1;-7.929e+05,-7.915e+04,-14.01]
+
+a =
+
+   1.0e+05 *
+
+                   0   0.000010000000000                   0
+                   0                   0   0.000010000000000
+  -7.929000000000000  -0.791500000000000  -0.000140100000000
+
+>> b=[7.711;-167.9;6.31e+04]
+
+b =
+
+   1.0e+04 *
+
+   0.000771100000000
+  -0.016790000000000
+   6.310000000000000
+
+>> c=[1,0,0];
+>> p=eig(a)
+
+p =
+
+   1.0e+02 *
+
+ -0.100227484686524                     
+ -0.019936257656738 + 2.812579994189082i
+ -0.019936257656738 - 2.812579994189082i
+
+>> pd=p';
+>> pda=[pd,-20]
+
+pda =
+
+   1.0e+02 *
+
+  Columns 1 through 2
+
+ -0.100227484686524                      -0.019936257656738 - 2.812579994189082i
+
+  Columns 3 through 4
+
+ -0.019936257656738 + 2.812579994189082i -0.200000000000000                     
+
+>> po=[-10 -10 -10];
+>> aa=[a,zeros(3,1);-c,0]
+
+aa =
+
+   1.0e+05 *
+
+                   0   0.000010000000000                   0                   0
+                   0                   0   0.000010000000000                   0
+  -7.929000000000000  -0.791500000000000  -0.000140100000000                   0
+  -0.000010000000000                   0                   0                   0
+
+>> ba=[b;0]
+
+ba =
+
+   1.0e+04 *
+
+   0.000771100000000
+  -0.016790000000000
+   6.310000000000000
+                   0
+
+>> kt=place(aa,ba,pda)
+
+kt =
+
+   2.358907488208206   0.000417540035136   0.000029803000483 -23.630799082924717
+
+>> kp=kt(1:3)
+
+kp =
+
+   2.358907488208206   0.000417540035136   0.000029803000483
+
+>> ki=kt(4)
+
+ki =
+
+ -23.630799082924717
+
+Warning: Using a default value of 0.6 for maximum step size.  The simulation step size will
+be equal to or less than this value.  You can disable this diagnostic by setting 'Automatic
+solver parameter selection' diagnostic to 'none' in the Diagnostics page of the configuration
+parameters dialog 
+Warning: Using a default value of 0.06 for maximum step size.  The simulation step size will
+be equal to or less than this value.  You can disable this diagnostic by setting 'Automatic
+solver parameter selection' diagnostic to 'none' in the Diagnostics page of the configuration
+parameters dialog 
+>> h=place(a',c',po)
+Error using place (line 79)
+The "place" command cannot place poles with multiplicity greater than rank(B).
+ 
+>> h=acker(a',c',po)
+
+h =
+
+   1.0e+05 *
+
+   0.000159900000000  -0.790740199000000  -9.496814812010001
+
+>> h=h'
+
+h =
+
+   1.0e+05 *
+
+   0.000159900000000
+  -0.790740199000000
+  -9.496814812010001
+
+Warning: Using a default value of 0.06 for maximum step size.  The simulation step size will
+be equal to or less than this value.  You can disable this diagnostic by setting 'Automatic
+solver parameter selection' diagnostic to 'none' in the Diagnostics page of the configuration
+parameters dialog 
+Warning: Using a default value of 0.06 for maximum step size.  The simulation step size will
+be equal to or less than this value.  You can disable this diagnostic by setting 'Automatic
+solver parameter selection' diagnostic to 'none' in the Diagnostics page of the configuration
+parameters dialog 
+Warning: Using a default value of 0.06 for maximum step size.  The simulation step size will
+be equal to or less than this value.  You can disable this diagnostic by setting 'Automatic
+solver parameter selection' diagnostic to 'none' in the Diagnostics page of the configuration
+parameters dialog 
+>> [adis,bdis,cdis,ddis]=c2dm(a,b,c,d,0.01,'zoh')
+pddis=[exp(pd(1,1)*0.01),exp(pd(1,2)*0.01),exp(pd(1,3)*0.01)]
+aadis=[adis zeros(3,1);-cdis 1]
+badis=[bdis;0]
+pdadis=[pddis exp(-20*0.01)]
+ktdis=place(aadis,badis,pdadis)
+kpdis=ktdis(1,1:3)
+kidis=ktdis(1,4)
+podis=[exp(po(1,1)*0.01),exp(po(1,2)*0.01),exp(po(1,3)*0.01)]
+hdis=place(adis',cdis',podis)
+hdis=hdis'
+Undefined function or variable 'd'.
+ 
+>> d=0;
+>> [adis,bdis,cdis,ddis]=c2dm(a,b,c,d,0.01,'zoh')
+pddis=[exp(pd(1,1)*0.01),exp(pd(1,2)*0.01),exp(pd(1,3)*0.01)]
+aadis=[adis zeros(3,1);-cdis 1]
+badis=[bdis;0]
+pdadis=[pddis exp(-20*0.01)]
+ktdis=place(aadis,badis,pdadis)
+kpdis=ktdis(1,1:3)
+kidis=ktdis(1,4)
+podis=[exp(po(1,1)*0.01),exp(po(1,2)*0.01),exp(po(1,3)*0.01)]
+hdis=place(adis',cdis',podis)
+hdis=hdis'
+
+adis =
+
+   1.0e+02 *
+
+   0.009145115146136   0.000012188585193   0.000000232580878
+  -0.184413378207623  -0.009263661351699   0.000008930127091
+  -7.080697770608391  -0.891232937475695  -0.009388772432247
+
+
+bdis =
+
+   1.0e+02 *
+
+   0.000778470295061
+   0.006037372843097
+   2.375848201045656
+
+
+cdis =
+
+     1     0     0
+
+
+ddis =
+
+     0
+
+
+pddis =
+
+  Columns 1 through 2
+
+  0.904631604790131                      -0.927681734285531 - 0.316731010123181i
+
+  Column 3
+
+ -0.927681734285531 + 0.316731010123181i
+
+
+aadis =
+
+   1.0e+02 *
+
+   0.009145115146136   0.000012188585193   0.000000232580878                   0
+  -0.184413378207623  -0.009263661351699   0.000008930127091                   0
+  -7.080697770608391  -0.891232937475695  -0.009388772432247                   0
+  -0.010000000000000                   0                   0   0.010000000000000
+
+
+badis =
+
+   1.0e+02 *
+
+   0.000778470295061
+   0.006037372843097
+   2.375848201045656
+                   0
+
+
+pdadis =
+
+  Columns 1 through 2
+
+  0.904631604790131                      -0.927681734285531 - 0.316731010123181i
+
+  Columns 3 through 4
+
+ -0.927681734285531 + 0.316731010123181i  0.818730753077982                     
+
+
+ktdis =
+
+   2.244784201298626   0.000170881301687   0.000027006344736  -0.214176857696568
+
+
+kpdis =
+
+   2.244784201298626   0.000170881301687   0.000027006344736
+
+
+kidis =
+
+  -0.214176857696568
+
+
+podis =
+
+   0.904837418035960   0.904837418035960   0.904837418035960
+
+Error using place (line 79)
+The "place" command cannot place poles with multiplicity greater than rank(B).
+ 
+>> [adis,bdis,cdis,ddis]=c2dm(a,b,c,d,0.01,'zoh')
+pddis=[exp(pd(1,1)*0.01),exp(pd(1,2)*0.01),exp(pd(1,3)*0.01)]
+aadis=[adis zeros(3,1);-cdis 1]
+badis=[bdis;0]
+pdadis=[pddis exp(-20*0.01)]
+ktdis=place(aadis,badis,pdadis)
+kpdis=ktdis(1,1:3)
+kidis=ktdis(1,4)
+podis=[exp(po(1,1)*0.01),exp(po(1,2)*0.01),exp(po(1,3)*0.01)]
+hdis=acker(adis',cdis',podis)
+hdis=hdis'
+
+adis =
+
+   1.0e+02 *
+
+   0.009145115146136   0.000012188585193   0.000000232580878
+  -0.184413378207623  -0.009263661351699   0.000008930127091
+  -7.080697770608391  -0.891232937475695  -0.009388772432247
+
+
+bdis =
+
+   1.0e+02 *
+
+   0.000778470295061
+   0.006037372843097
+   2.375848201045656
+
+
+cdis =
+
+     1     0     0
+
+
+ddis =
+
+     0
+
+
+pddis =
+
+  Columns 1 through 2
+
+  0.904631604790131                      -0.927681734285531 - 0.316731010123181i
+
+  Column 3
+
+ -0.927681734285531 + 0.316731010123181i
+
+
+aadis =
+
+   1.0e+02 *
+
+   0.009145115146136   0.000012188585193   0.000000232580878                   0
+  -0.184413378207623  -0.009263661351699   0.000008930127091                   0
+  -7.080697770608391  -0.891232937475695  -0.009388772432247                   0
+  -0.010000000000000                   0                   0   0.010000000000000
+
+
+badis =
+
+   1.0e+02 *
+
+   0.000778470295061
+   0.006037372843097
+   2.375848201045656
+                   0
+
+
+pdadis =
+
+  Columns 1 through 2
+
+  0.904631604790131                      -0.927681734285531 - 0.316731010123181i
+
+  Columns 3 through 4
+
+ -0.927681734285531 + 0.316731010123181i  0.818730753077982                     
+
+
+ktdis =
+
+   2.244784201298626   0.000170881301687   0.000027006344736  -0.214176857696568
+
+
+kpdis =
+
+   2.244784201298626   0.000170881301687   0.000027006344736
+
+
+kidis =
+
+  -0.214176857696568
+
+
+podis =
+
+   0.904837418035960   0.904837418035960   0.904837418035960
+
+
+hdis =
+
+   1.0e+05 *
+
+  -0.000036652441179   0.029005843744682   2.783922374877670
+
+
+hdis =
+
+   1.0e+05 *
+
+  -0.000036652441179
+   0.029005843744682
+   2.783922374877670
+
+>> tm=0.01;
+>> save workspace
+>> load('workspace.mat')

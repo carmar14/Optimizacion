@@ -1,0 +1,26 @@
+%implements s0_b0_o7zlh_Derivatives "C"
+
+%function Derivatives(block, system) Output
+%<SLibCG_TrackContStatesDerivative(0)>\
+_rtXdot = %<(SLibCG_SE(SLibGetContStatesDerivativeStructPtr()))>;
+%<SLibCG_TrackBlockIO(0)>\
+/* Derivatives for Integrator: '<Root>/Integrator4' */
+_rtXdot->Integrator4_CSTATE = ControladorContinuo_B.Sum10;
+/* Derivatives for Integrator: '<Root>/Integrator3' */
+_rtXdot->Integrator3_CSTATE[0] = ControladorContinuo_B.Sum8[0];
+_rtXdot->Integrator3_CSTATE[1] = ControladorContinuo_B.Sum8[1];
+_rtXdot->Integrator3_CSTATE[2] = ControladorContinuo_B.Sum8[2];
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Derivatives(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 3, fcnProtoType)>
+
+%assign localVarDecl = ""
+%openfile localVarDecl
+StateDerivatives_ControladorContinuo *_rtXdot;
+
+%closefile localVarDecl
+%<LibSetSystemField(system, "CachedDerivativeLocalVars", localVarDecl)>
+%endfunction

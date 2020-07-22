@@ -1,0 +1,67 @@
+%implements s0_b0_pc0lh_Outputs "C"
+
+%function Outputs(block, system) Output
+%assign tlcOutputsFcnOfS0B0 = OpaqueTLCBlockFcn("Outputs", 0, 0, 0, 2)
+%assign tlcOutputsFcnOfS0B1 = OpaqueTLCBlockFcn("Outputs", 0, 1, 0, 2)
+%assign tlcOutputsFcnOfS0B2 = OpaqueTLCBlockFcn("Outputs", 0, 2, 0, 2)
+%assign tlcOutputsFcnOfS0B3 = OpaqueTLCBlockFcn("Outputs", 0, 3, 0, 2)
+%<SLibCG_TrackDW(0)>\
+%<SLibCG_TrackParam(0)>\
+%<SLibCG_TrackBlockIO(0)>\
+%<SLibGenerateExtModeOutput(system)>
+/* Step: '<Root>/Step' */
+if (%<(SLibCG_SE(LibGetTaskTime(0)))> < Controlador_P.Step_Time) {
+    rtb_UnitDelay1_idx = Controlador_P.Step_Y0;
+} else {
+    rtb_UnitDelay1_idx = Controlador_P.Step_YFinal;
+}
+/* End of Step: '<Root>/Step' */
+
+/* Gain: '<S1>/Slider Gain' */
+Controlador_B.SliderGain = Controlador_P.SliderGain_Gain * rtb_UnitDelay1_idx;
+%<tlcOutputsFcnOfS0B0>\
+/* DiscreteTransferFcn: '<Root>/integrador' incorporates:
+ *  Sum: '<Root>/Sum10'
+ */
+Controlador_DWork.integrador_tmp = ((Controlador_B.SliderGain - Controlador_B.AnalogInput) - Controlador_P.integrador_DenCoef[1] * Controlador_DWork.integrador_DSTATE) / Controlador_P.integrador_DenCoef[0];
+/* UnitDelay: '<Root>/Unit Delay1' */
+rtb_UnitDelay1_idx = Controlador_DWork.UnitDelay1_DSTATE[0];
+rtb_UnitDelay1_idx_0 = Controlador_DWork.UnitDelay1_DSTATE[1];
+rtb_UnitDelay1_idx_1 = Controlador_DWork.UnitDelay1_DSTATE[2];
+/* Sum: '<Root>/Sum9' incorporates:
+ *  DiscreteTransferFcn: '<Root>/integrador'
+ *  Gain: '<Root>/-kidis'
+ *  Gain: '<Root>/-kpdis'
+ *  UnitDelay: '<Root>/Unit Delay1'
+ */
+Controlador_B.Sum9 = (Controlador_P.integrador_NumCoef[0] * Controlador_DWork.integrador_tmp + Controlador_P.integrador_NumCoef[1] * Controlador_DWork.integrador_DSTATE) * Controlador_P.kidis_Gain + ((Controlador_P.kpdis_Gain[0] * Controlador_DWork.UnitDelay1_DSTATE[0] + Controlador_P.kpdis_Gain[1] * Controlador_DWork.UnitDelay1_DSTATE[1]) + Controlador_P.kpdis_Gain[2] * Controlador_DWork.UnitDelay1_DSTATE[2]);
+%<tlcOutputsFcnOfS0B1>\
+%<tlcOutputsFcnOfS0B2>\
+%<tlcOutputsFcnOfS0B3>\
+/* Sum: '<Root>/Sum8' incorporates:
+ *  Gain: '<Root>/adis-hdiscdis'
+ *  Gain: '<Root>/bdis2'
+ *  Gain: '<Root>/hdis'
+ */
+for (i = 0; i < 3; i++) {
+    Controlador_B.Sum8[i] = ((Controlador_P.adishdiscdis_Gain[i + 3] * rtb_UnitDelay1_idx_0 + Controlador_P.adishdiscdis_Gain[i] * rtb_UnitDelay1_idx) + Controlador_P.adishdiscdis_Gain[i + 6] * rtb_UnitDelay1_idx_1) + (Controlador_P.hdis_Gain[i] * Controlador_B.AnalogInput + Controlador_P.bdis2_Gain[i] * Controlador_B.Sum9);
+}
+/* End of Sum: '<Root>/Sum8' */
+%<SLibInsertSolverResetCode()>\
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Outputs(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 2, fcnProtoType)>
+
+%assign localVarDecl = ""
+%openfile localVarDecl
+int32_T i;
+real_T rtb_UnitDelay1_idx;
+real_T rtb_UnitDelay1_idx_0;
+real_T rtb_UnitDelay1_idx_1;
+
+%closefile localVarDecl
+%<LibSetSystemField(system, "CachedOutputLocalVars", localVarDecl)>
+%endfunction

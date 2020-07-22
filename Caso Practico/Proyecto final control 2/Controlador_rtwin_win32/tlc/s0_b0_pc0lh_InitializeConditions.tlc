@@ -1,0 +1,20 @@
+%implements s0_b0_pc0lh_InitializeConditions "C"
+
+%function InitializeConditions(block, system) Output
+%<SLibCG_TrackDW(0)>\
+%<SLibCG_TrackParam(0)>\
+%<SLibInsertAsyncTaskInitializeCode(system)>
+%<SLibWriteMachineInitialize()>
+/* InitializeConditions for DiscreteTransferFcn: '<Root>/integrador' */
+Controlador_DWork.integrador_DSTATE = Controlador_P.integrador_InitialStates;
+/* InitializeConditions for UnitDelay: '<Root>/Unit Delay1' */
+Controlador_DWork.UnitDelay1_DSTATE[0] = Controlador_P.UnitDelay1_X0;
+Controlador_DWork.UnitDelay1_DSTATE[1] = Controlador_P.UnitDelay1_X0;
+Controlador_DWork.UnitDelay1_DSTATE[2] = Controlador_P.UnitDelay1_X0;
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void InitializeConditions(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 1, fcnProtoType)>
+%endfunction

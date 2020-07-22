@@ -1,0 +1,20 @@
+%implements s0_b0_o7zlh_InitializeConditions "C"
+
+%function InitializeConditions(block, system) Output
+%<SLibCG_TrackContStates(0)>\
+%<SLibCG_TrackParam(0)>\
+%<SLibInsertAsyncTaskInitializeCode(system)>
+%<SLibWriteMachineInitialize()>
+/* InitializeConditions for Integrator: '<Root>/Integrator4' */
+ControladorContinuo_X.Integrator4_CSTATE = ControladorContinuo_P.Integrator4_IC;
+/* InitializeConditions for Integrator: '<Root>/Integrator3' */
+ControladorContinuo_X.Integrator3_CSTATE[0] = ControladorContinuo_P.Integrator3_IC;
+ControladorContinuo_X.Integrator3_CSTATE[1] = ControladorContinuo_P.Integrator3_IC;
+ControladorContinuo_X.Integrator3_CSTATE[2] = ControladorContinuo_P.Integrator3_IC;
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void InitializeConditions(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 1, fcnProtoType)>
+%endfunction

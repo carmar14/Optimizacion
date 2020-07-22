@@ -1,0 +1,18 @@
+%implements s0_b0_pc0lh_Update "C"
+
+%function Update(block, system) Output
+%<SLibCG_TrackDW(0)>\
+%<SLibCG_TrackBlockIO(0)>\
+/* Update for DiscreteTransferFcn: '<Root>/integrador' */
+Controlador_DWork.integrador_DSTATE = Controlador_DWork.integrador_tmp;
+/* Update for UnitDelay: '<Root>/Unit Delay1' */
+Controlador_DWork.UnitDelay1_DSTATE[0] = Controlador_B.Sum8[0];
+Controlador_DWork.UnitDelay1_DSTATE[1] = Controlador_B.Sum8[1];
+Controlador_DWork.UnitDelay1_DSTATE[2] = Controlador_B.Sum8[2];
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Update(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 3, fcnProtoType)>
+%endfunction
